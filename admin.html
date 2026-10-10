@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es" class="overflow-x-hidden">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Moonfed - Panel de Administración</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+  <!-- NAVBAR ADMIN -->
+  <header class="border-b border-purple-500/20 bg-slate-900/90 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="font-black text-2xl sm:text-3xl tracking-tight bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
+          Moonfed Admin 🛡️
+        </span>
+      </div>
+      <div id="adminNavInfo" class="hidden flex items-center gap-3">
+        <img id="adminNavAvatar" src="https://via.placeholder.com/40" class="w-9 h-9 rounded-full border-2 border-pink-400 object-cover">
+        <span id="adminNavName" class="text-xs font-bold text-slate-200 hidden sm:inline">Admin</span>
+        <button id="adminLogoutBtn" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs font-bold px-3 py-1.5 rounded-xl border border-red-500/30 transition cursor-pointer">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center items-center">
+
+    <!-- 1. LOGIN ADMIN -->
+    <section id="adminLoginScreen" class="max-w-md w-full text-center py-12">
+      <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
+        <div class="w-16 h-16 bg-purple-500/10 text-purple-400 rounded-2xl flex items-center justify-center mx-auto text-3xl border border-purple-500/30">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <div>
+          <h2 class="text-2xl font-black text-slate-100">Acceso al Panel Admin</h2>
+          <p class="text-slate-400 text-xs mt-2">Inicia sesión con tu cuenta de Google para solicitar o acceder al panel.</p>
+        </div>
+        <button id="adminGoogleLoginBtn" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3.5 px-4 rounded-2xl flex items-center justify-center gap-3 transition shadow-lg cursor-pointer">
+          <svg class="w-5 h-5" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          Ingresar con Google
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. PANTALLA ESPERA DE APROBACIÓN -->
+    <section id="adminPendingScreen" class="hidden max-w-md w-full text-center py-12">
+      <div class="bg-slate-900 border border-yellow-500/30 rounded-3xl p-6 md:p-8 shadow-2xl space-y-4">
+        <div class="w-16 h-16 bg-yellow-500/10 text-yellow-400 rounded-2xl flex items-center justify-center mx-auto text-3xl border border-yellow-500/30 animate-pulse">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+        <h2 class="text-xl font-black text-slate-100">Esperando Autorización</h2>
+        <p class="text-slate-400 text-xs leading-relaxed">
+          Se ha enviado una solicitud al <strong class="text-pink-400">Administrador Principal</strong>.
+          Por favor espera a que acepte tu ingreso.
+        </p>
+        <div class="pt-2">
+          <button id="adminCancelPendingBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer">
+            Cancelar / Salir
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. PANEL PRINCIPAL ADMIN (APROBADO) -->
+    <section id="adminDashboardScreen" class="hidden w-full space-y-6">
+
+      <!-- SOLICITUDES DE ACCESO ADMIN PENDIENTES -->
+      <div id="accessRequestsBox" class="hidden bg-slate-900 border border-yellow-500/40 rounded-3xl p-5 shadow-2xl space-y-3">
+        <h3 class="text-sm font-black text-yellow-400 flex items-center gap-2 uppercase tracking-wider">
+          <i class="fa-solid fa-bell animate-bounce"></i> Solicitudes de Ingreso al Panel Admin
+        </h3>
+        <div id="accessRequestsList" class="space-y-2"></div>
+      </div>
+
+      <!-- LISTA DE USUARIOS REGISTRADOS EN LA PLATAFORMA -->
+      <div class="bg-slate-900 border border-purple-500/30 rounded-3xl p-5 md:p-6 shadow-2xl space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+          <div>
+            <h2 class="text-lg font-black text-slate-100 flex items-center gap-2">
+              <i class="fa-solid fa-users text-pink-400"></i> Cuentas Ingresadas
+            </h2>
+            <p class="text-xs text-slate-400">Administra la verificación y seguidores de los usuarios registrados.</p>
+          </div>
+          <span id="totalUsersBadge" class="bg-purple-500/10 text-purple-300 border border-purple-500/30 text-xs font-bold px-3 py-1 rounded-full w-fit">
+            0 Usuarios
+          </span>
+        </div>
+
+        <!-- TABLA DE USUARIOS -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-950 text-slate-400 uppercase font-extrabold text-[10px] tracking-wider border-b border-slate-800">
+              <tr>
+                <th class="p-3">Usuario</th>
+                <th class="p-3">Contacto</th>
+                <th class="p-3">País</th>
+                <th class="p-3">Estado / Verificado</th>
+                <th class="p-3">Acciones Admin</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersTable" class="divide-y divide-slate-800/60 font-medium">
+              <!-- Carga de usuarios desde Firebase -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- LÓGICA DE FIREBASE PARA EL PANEL ADMIN -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getDatabase, ref, set, get, child, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyByGaZHa8KJjFsfVgF6G1eLFmW70dielc4",
+      authDomain: "tienda-33972.firebaseapp.com",
+      databaseURL: "https://tienda-33972-default-rtdb.firebaseio.com",
+      projectId: "tienda-33972",
+      storageBucket: "tienda-33972.firebasestorage.app",
+      messagingSenderId: "348867313665",
+      appId: "1:348867313665:web:f05c56d1a1fad029484000"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    auth.useDeviceLanguage();
+    const db = getDatabase(app);
+    const provider = new GoogleAuthProvider();
+
+    let currentAdminUser = null;
+    let isSuperAdmin = false;
+
+    // Iniciar sesión
+    document.getElementById('adminGoogleLoginBtn').addEventListener('click', async () => {
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        alert("Error al iniciar sesión: " + err.message);
+      }
+    });
+
+    document.getElementById('adminLogoutBtn').addEventListener('click', () => signOut(auth));
+    document.getElementById('adminCancelPendingBtn').addEventListener('click', () => signOut(auth));
+
+    // Escuchar cambios de Autenticación
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentAdminUser = user;
+        document.getElementById('adminNavAvatar').src = user.photoURL || 'https://via.placeholder.com/40';
+        document.getElementById('adminNavName').textContent = user.displayName || 'Admin';
+        document.getElementById('adminNavInfo').classList.remove('hidden');
+
+        await processAdminAccess(user);
+      } else {
+        currentAdminUser = null;
+        showSection('login');
+        document.getElementById('adminNavInfo').classList.add('hidden');
+      }
+    });
+
+    async function processAdminAccess(user) {
+      const superAdminRef = ref(db, 'adminSettings/superAdminUid');
+      const snapshot = await get(superAdminRef);
+
+      if (!snapshot.exists()) {
+        // Primer Administrador registrado en el sistema
+        await set(superAdminRef, user.uid);
+        await set(ref(db, `adminUsers/${user.uid}`), {
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          status: 'approved',
+          role: 'superadmin'
+        });
+        isSuperAdmin = true;
+        showSection('dashboard');
+        initAdminDashboard();
+      } else {
+        const superAdminUid = snapshot.val();
+        isSuperAdmin = (superAdminUid === user.uid);
+
+        // Verificar el estado de la cuenta en adminUsers
+        const myAdminRef = ref(db, `adminUsers/${user.uid}`);
+        onValue(myAdminRef, (snap) => {
+          if (!snap.exists()) {
+            // Solicitar acceso
+            set(myAdminRef, {
+              uid: user.uid,
+              name: user.displayName,
+              email: user.email,
+              photoURL: user.photoURL,
+              status: 'pending',
+              role: 'admin'
+            });
+            showSection('pending');
+          } else {
+            const data = snap.val();
+            if (data.status === 'approved') {
+              showSection('dashboard');
+              initAdminDashboard();
+            } else if (data.status === 'rejected') {
+              alert("Tu solicitud de acceso al panel de administración fue rechazada.");
+              signOut(auth);
+            } else {
+              showSection('pending');
+            }
+          }
+        });
+      }
+    }
+
+    function initAdminDashboard() {
+      // Escuchar solicitudes de ingreso si es el Administrador Principal
+      if (isSuperAdmin) {
+        onValue(ref(db, 'adminUsers'), (snap) => {
+          const reqBox = document.getElementById('accessRequestsBox');
+          const reqList = document.getElementById('accessRequestsList');
+          reqList.innerHTML = '';
+
+          if (!snap.exists()) {
+            reqBox.classList.add('hidden');
+            return;
+          }
+
+          const admins = snap.val();
+          let pendingCount = 0;
+
+          Object.keys(admins).forEach(uid => {
+            const adm = admins[uid];
+            if (adm.status === 'pending') {
+              pendingCount++;
+              const div = document.createElement('div');
+              div.className = "bg-slate-950 p-3 rounded-2xl border border-slate-800 flex items-center justify-between text-xs";
+              div.innerHTML = `
+                <div class="flex items-center gap-3">
+                  <img src="${adm.photoURL || 'https://via.placeholder.com/40'}" class="w-8 h-8 rounded-full border border-pink-400 object-cover">
+                  <div>
+                    <p class="font-bold text-slate-100">${adm.name}</p>
+                    <p class="text-[10px] text-slate-400">${adm.email}</p>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="approveAdmin('${adm.uid}')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-xl transition cursor-pointer">
+                    Aceptar
+                  </button>
+                  <button onclick="rejectAdmin('${adm.uid}')" class="bg-red-600 hover:bg-red-500 text-white font-bold px-3 py-1 rounded-xl transition cursor-pointer">
+                    Rechazar
+                  </button>
+                </div>
+              `;
+              reqList.appendChild(div);
+            }
+          });
+
+          if (pendingCount > 0) reqBox.classList.remove('hidden');
+          else reqBox.classList.add('hidden');
+        });
+      }
+
+      // Escuchar y cargar todas las cuentas ingresadas en la plataforma
+      onValue(ref(db, 'vendors'), (snapshot) => {
+        const tbody = document.getElementById('adminUsersTable');
+        const badge = document.getElementById('totalUsersBadge');
+        tbody.innerHTML = '';
+
+        if (!snapshot.exists()) {
+          tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">No hay cuentas registradas aún.</td></tr>`;
+          badge.textContent = "0 Usuarios";
+          return;
+        }
+
+        const vendors = snapshot.val();
+        const keys = Object.keys(vendors);
+        badge.textContent = `${keys.length} Usuarios`;
+
+        keys.forEach(uid => {
+          const u = vendors[uid];
+          const isVerified = u.isVerified || false;
+          const followers = u.followersExtraCount || 0;
+
+          const tr = document.createElement('tr');
+          tr.className = "hover:bg-slate-900/60 border-b border-slate-800/40 transition";
+          tr.innerHTML = `
+            <td class="p-3 flex items-center gap-2.5">
+              <img src="${u.photoURL || 'https://via.placeholder.com/35'}" class="w-8 h-8 rounded-full object-cover border border-pink-400/50">
+              <div>
+                <p class="font-bold text-slate-100 flex items-center gap-1">
+                  ${u.name || 'Sin nombre'}
+                  ${isVerified ? '<i class="fa-solid fa-circle-check text-pink-400 text-xs"></i>' : ''}
+                </p>
+                <p class="text-[10px] text-slate-400 truncate max-w-[140px]">${u.email || ''}</p>
+              </div>
+            </td>
+            <td class="p-3 text-[11px]">${u.phone || 'N/A'}</td>
+            <td class="p-3 text-[11px]">${u.country || 'N/A'}</td>
+            <td class="p-3">
+              ${isVerified 
+                ? '<span class="bg-pink-500/10 text-pink-400 border border-pink-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full">Verificado</span>' 
+                : '<span class="bg-slate-800 text-slate-400 text-[10px] font-bold px-2 py-0.5 rounded-full">Normal</span>'}
+            </td>
+            <td class="p-3">
+              <div class="flex items-center gap-2">
+                <button onclick="toggleUserVerification('${u.uid}', ${isVerified})" class="${isVerified ? 'bg-slate-800 text-slate-300' : 'bg-pink-500/20 text-pink-300 border border-pink-500/30'} hover:opacity-80 text-[11px] font-bold px-2.5 py-1 rounded-xl transition cursor-pointer">
+                  ${isVerified ? 'Quitar Verificación' : '✔ Verificar'}
+                </button>
+                <button onclick="addFollowersToUser('${u.uid}', ${followers})" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:opacity-90 text-[11px] font-bold px-2.5 py-1 rounded-xl transition cursor-pointer shadow-md">
+                  ➕ Aumentar Seguidores
+                </button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    // Funciones Globales para Botones de Acción Admin
+    window.approveAdmin = async (targetUid) => {
+      await update(ref(db, `adminUsers/${targetUid}`), { status: 'approved' });
+    };
+
+    window.rejectAdmin = async (targetUid) => {
+      await update(ref(db, `adminUsers/${targetUid}`), { status: 'rejected' });
+    };
+
+    window.toggleUserVerification = async (targetUid, currentVerified) => {
+      await update(ref(db, `vendors/${targetUid}`), { isVerified: !currentVerified });
+    };
+
+    window.addFollowersToUser = async (targetUid, currentExtra) => {
+      const amountStr = prompt("¿Cuántos seguidores deseas añadir a este usuario?", "100");
+      if (!amountStr) return;
+      const amount = parseInt(amountStr);
+      if (isNaN(amount) || amount <= 0) {
+        alert("Ingresa una cantidad válida.");
+        return;
+      }
+      const newTotal = currentExtra + amount;
+      await update(ref(db, `vendors/${targetUid}`), { followersExtraCount: newTotal });
+      alert(`¡Se añadieron ${amount} seguidores exitosamente!`);
+    };
+
+    function showSection(section) {
+      document.getElementById('adminLoginScreen').classList.add('hidden');
+      document.getElementById('adminPendingScreen').classList.add('hidden');
+      document.getElementById('adminDashboardScreen').classList.add('hidden');
+
+      if (section === 'login') document.getElementById('adminLoginScreen').classList.remove('hidden');
+      if (section === 'pending') document.getElementById('adminPendingScreen').classList.remove('hidden');
+      if (section === 'dashboard') document.getElementById('adminDashboardScreen').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
